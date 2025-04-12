@@ -45,8 +45,8 @@ backend/
 
 #### Key Logic Locations
 
-- **Alert Condition Checking**: The rules for determining *if* an alert should be generated based on measurements (e.g., comparing BP/HR/Weight to thresholds) are primarily located in the `check_alerts` function within `app/routes/alerts.py`.
-- **AI Alert Message Generation**: The logic for using an LLM to create a personalized, patient-friendly WhatsApp message *after* an alert condition is met resides in the `generate_alert_message` method within `app/services/ai_service.py`.
+- **Alert Generation & Evaluation**: The core logic for evaluating patient measurements against clinical guidelines and generating alerts resides in `app/routes/alerts.py`, specifically within the `check_alerts` function.
+- **AI Message Generation & Notifications**: The generation of AI-powered alert messages and the handling of external notifications (like WhatsApp) are managed by the `AIService` class in `app/services/ai_service.py`.
 
 ## Setup
 

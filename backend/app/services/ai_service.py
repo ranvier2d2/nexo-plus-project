@@ -130,6 +130,12 @@ class AIService:
             }
         }
         
+        print(f"\n--- WhatsApp API Request ---      \n"            
+              f"URL: {url}\n"              
+              f"Headers: {headers}\n"          
+              f"Data: {data}\n"              
+              f"---------------------------\n")  
+
         try:
             response = requests.post(url, headers=headers, json=data)
             if response.status_code in [200, 201]:

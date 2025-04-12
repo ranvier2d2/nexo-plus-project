@@ -1,6 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
+from app.models import Patient
+from app.routes.patients import patients_db
+from app.routes import patients, measurements, alerts, guidelines, ingestion, system
 
 # Load environment variables
 load_dotenv()
@@ -23,9 +26,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Import and include routers
-from app.routes import patients, measurements, alerts, guidelines, ingestion, system
-
 # Include routers
 app.include_router(patients.router)
 app.include_router(measurements.router)
@@ -33,6 +33,13 @@ app.include_router(alerts.router)
 app.include_router(guidelines.router)
 app.include_router(ingestion.router)
 app.include_router(system.router)
+
+# Temporary endpoint for demo purposes - REMOVE AFTER DEMO
+@app.post("/debug/patients", status_code=201, tags=["Debug"], include_in_schema=False)
+async def add_debug_patient(patient: Patient):
+    """Adds or updates a patient in the in-memory DB for debugging/demo."""
+    patients_db[patient.id] = patient
+    return {"message": f"Patient {patient.id} added/updated for debug."}
 
 # Main entry point
 if __name__ == "__main__":

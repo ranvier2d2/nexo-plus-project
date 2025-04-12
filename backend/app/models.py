@@ -12,6 +12,7 @@ class Measurement(BaseModel):
     presion_sistolica: float = Field(..., description="Systolic blood pressure in mmHg")
     presion_diastolica: float = Field(..., description="Diastolic blood pressure in mmHg")
     frecuencia_cardiaca: float = Field(..., description="Heart rate in beats per minute (bpm)")
+    saturacion_oxigeno: Optional[float] = Field(None, description="Blood oxygen saturation in percentage (%)")
     sintomas: Optional[List[str]] = Field(default=None, description="List of symptoms reported by patient")
 
 class Patient(BaseModel):
