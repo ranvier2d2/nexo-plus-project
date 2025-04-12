@@ -44,6 +44,25 @@ class AIService:
         # Extract alert information
         alert_info = [{"message": alert.mensaje, "level": alert.nivel} for alert in alerts]
         
+        # Format latest measurement details for the prompt
+        measurement_details = "No recent measurement available."
+        if patient_info["latest_measurement"]:
+            lm = patient_info["latest_measurement"]
+            details = []
+            if lm.presion_sistolica is not None and lm.presion_diastolica is not None:
+                details.append(f"Blood Pressure: {lm.presion_sistolica}/{lm.presion_diastolica} mmHg")
+            if lm.frecuencia_cardiaca is not None:
+                details.append(f"Heart Rate: {lm.frecuencia_cardiaca} bpm")
+            if lm.peso is not None:
+                details.append(f"Weight: {lm.peso} kg")
+            if lm.saturacion_oxigeno is not None:
+                details.append(f"Oxygen Saturation: {lm.saturacion_oxigeno}%")
+            if lm.sintomas:
+                details.append(f"Reported Symptoms: {', '.join(lm.sintomas)}")
+            measurement_details = "\n    - ".join(details) if details else "Measurement data available but specific values not recorded."
+            if details: # Add prefix only if there are details
+                measurement_details = "Latest measurement details:\n    - " + measurement_details
+
         # Create prompt for the LLM
         prompt = f"""
         You are a medical assistant for Nexo+, a platform that helps cardiac patients after discharge.
@@ -52,7 +71,9 @@ class AIService:
         - Name: {patient_info['name']}
         - Age: {patient_info['age']}
         
-        The following alerts have been detected:
+        {measurement_details}
+
+        The following alerts have been detected based on recent data:
         {', '.join([f"{a['message']} (Level: {a['level']})" for a in alert_info])}
         
         Generate a personalized, empathetic WhatsApp message for this patient that:
@@ -109,6 +130,12 @@ class AIService:
             }
         }
         
+        print(f"\n--- WhatsApp API Request ---      \n"            
+              f"URL: {url}\n"              
+              f"Headers: {headers}\n"          
+              f"Data: {data}\n"              
+              f"---------------------------\n")  
+
         try:
             response = requests.post(url, headers=headers, json=data)
             if response.status_code in [200, 201]:

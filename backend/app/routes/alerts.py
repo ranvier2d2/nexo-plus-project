@@ -3,6 +3,7 @@ from typing import List, Dict, Optional
 from datetime import datetime
 import requests
 import os
+from zoneinfo import ZoneInfo
 
 from app.models import Patient, Alert
 from app.routes.patients import patients_db
@@ -29,11 +30,13 @@ def check_alerts(patient: Patient) -> List[Alert]:
     
     # Weight change comparison
     if len(patient.measurements) > 1:
-        peso_inicial = patient.measurements[0].peso
-        delta_peso = latest.peso - peso_inicial
+        # Use the previous measurement as baseline for weight change
+        previous = patient.measurements[-2] 
+        delta_peso = latest.peso - previous.peso
+        # Alert if weight gain exceeds threshold compared to *previous* measurement
         if delta_peso > clinical_params.peso_delta:
             alerts.append(Alert(
-                mensaje=f"Weight increase of {delta_peso:.1f} kg detected. Check for fluid retention.",
+                mensaje=f"Recent weight increase of {delta_peso:.1f} kg detected (compared to last measurement). Check for fluid retention.",
                 nivel="yellow"
             ))
     
@@ -125,10 +128,12 @@ async def get_alerts(patient_id: str):
     
     alerts = check_alerts(patient)
     
-    if any(a.nivel == "red" for a in alerts):
+    if any(a.nivel == "red" for a in alerts) and patient.telefono:
         await notify_via_whatsapp(patient, alerts)
+        # Update intervention history *after* successful notification attempt
         patient.intervention_history.append({
-            "timestamp": datetime.utcnow().isoformat(),
+            # Use timezone-aware UTC timestamp
+            "timestamp": datetime.now(ZoneInfo("UTC")).isoformat(),
             "action": "AI-generated WhatsApp notification sent",
             "alerts": "; ".join([a.mensaje for a in alerts])
         })
