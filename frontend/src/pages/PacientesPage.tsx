@@ -6,6 +6,7 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
 import { Badge } from '../components/ui/badge';
+import { Search, Plus } from 'lucide-react';
 
 // Mock data - would be fetched from API in production
 const mockPatients = [
@@ -53,7 +54,7 @@ const PacientesPage: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-[60vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div> 
       </div>
     );
   }
@@ -62,7 +63,7 @@ const PacientesPage: React.FC = () => {
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold mb-2">Pacientes</h1>
-        <p className="text-gray-600">Gestiona los pacientes registrados en Nexo+</p>
+        <p className="text-muted-foreground">Gestiona los pacientes registrados en Nexo+</p>
       </div>
 
       {/* Search and Actions */}
@@ -72,38 +73,12 @@ const PacientesPage: React.FC = () => {
             placeholder="Buscar por nombre o teléfono..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
+            className="pl-10" 
           />
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-            />
-          </svg>
+          <Search className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
         </div>
         <Button onClick={handleAddPatient}>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5 mr-2"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 4v16m8-8H4"
-            />
-          </svg>
+          <Plus className="h-5 w-5 mr-2" />
           Agregar Paciente
         </Button>
       </div>
@@ -137,11 +112,11 @@ const PacientesPage: React.FC = () => {
                   <TableCell>{patient.lastMeasurement}</TableCell>
                   <TableCell>
                     {patient.status === 'Alerta' ? (
-                      <Badge className="bg-red-100 text-red-800 hover:bg-red-100">
+                      <Badge variant="destructive">
                         Alerta
                       </Badge>
                     ) : (
-                      <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+                      <Badge className="bg-green-600/10 text-green-700 border-green-600/20 hover:bg-green-600/20 dark:bg-green-700/20 dark:text-green-500 dark:border-green-700/30">
                         Estable
                       </Badge>
                     )}
@@ -164,7 +139,7 @@ const PacientesPage: React.FC = () => {
               ))}
               {filteredPatients.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-gray-500">
+                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                     No se encontraron pacientes con los criterios de búsqueda.
                   </TableCell>
                 </TableRow>
@@ -178,7 +153,7 @@ const PacientesPage: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-2xl">4</CardTitle>
+            <CardTitle className="text-2xl text-primary">4</CardTitle> 
             <CardDescription>Pacientes en Alerta</CardDescription>
           </CardHeader>
           <CardContent>
@@ -188,7 +163,7 @@ const PacientesPage: React.FC = () => {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-2xl">78%</CardTitle>
+            <CardTitle className="text-2xl text-primary">78%</CardTitle>
             <CardDescription>Adherencia Promedio</CardDescription>
           </CardHeader>
           <CardContent>
@@ -198,7 +173,7 @@ const PacientesPage: React.FC = () => {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-2xl">3</CardTitle>
+            <CardTitle className="text-2xl text-primary">3</CardTitle>
             <CardDescription>Nuevos esta semana</CardDescription>
           </CardHeader>
           <CardContent>
