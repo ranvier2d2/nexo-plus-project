@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from './ui/button';
-import { useToast } from '../hooks/use-toast';
+import { useToast } from './ui/use-toast';
 
 const Header: React.FC = () => {
   const { toast } = useToast();
