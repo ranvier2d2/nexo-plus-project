@@ -51,14 +51,23 @@ nexo-plus-project/
 - Python 3.8+
 - Node.js 16+
 - npm or yarn
+- [uv](https://github.com/astral-sh/uv) (recommended Python package/environment manager)
 
 ### Backend Setup
 
+We recommend using `uv` for managing the Python environment and dependencies defined in `pyproject.toml`.
+
 ```bash
 cd backend
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-pip install -r requirements.txt
+
+# Create a virtual environment (recommended)
+uv venv
+
+# Activate the environment
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# Install dependencies
+uv pip sync pyproject.toml
 ```
 
 Create a `.env` file in the backend directory with the following variables:
@@ -71,7 +80,8 @@ WHATSAPP_TOKEN=your_whatsapp_token
 
 Start the backend server:
 ```bash
-uvicorn app.main:app --reload
+# Ensure your virtual environment is active
+uv run uvicorn app:app --reload --host 0.0.0.0 --port 8000
 ```
 
 ### Frontend Setup

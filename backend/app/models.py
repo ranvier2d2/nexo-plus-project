@@ -1,13 +1,13 @@
 from pydantic import BaseModel, Field
 from typing import List, Dict, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid
 
 class Measurement(BaseModel):
     """
     Model representing a clinical measurement from a patient.
     """
-    timestamp: datetime = Field(default_factory=datetime.utcnow, description="Date and time of measurement")
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="Date and time of measurement")
     peso: float = Field(..., description="Patient weight in kg")
     presion_sistolica: float = Field(..., description="Systolic blood pressure in mmHg")
     presion_diastolica: float = Field(..., description="Diastolic blood pressure in mmHg")
@@ -51,7 +51,7 @@ class TextIngestion(BaseModel):
     Model for text data ingestion.
     """
     id: Optional[str] = Field(default_factory=lambda: str(uuid.uuid4()), description="Unique ingestion identifier")
-    timestamp: datetime = Field(default_factory=datetime.utcnow, description="Ingestion date and time")
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="Ingestion date and time")
     content: str = Field(..., description="Text content entered")
     metadata: Optional[Dict[str, str]] = Field(default=None, description="Additional content metadata")
 
@@ -60,7 +60,7 @@ class VisionIngestion(BaseModel):
     Model for ingestion of data including visual information.
     """
     id: Optional[str] = Field(default_factory=lambda: str(uuid.uuid4()), description="Unique ingestion identifier")
-    timestamp: datetime = Field(default_factory=datetime.utcnow, description="Ingestion date and time")
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), description="Ingestion date and time")
     image_url: Optional[str] = Field(None, description="Image URL or reference")
     caption: Optional[str] = Field(None, description="Visual description or interpretation of the image")
     additional_text: Optional[str] = Field(None, description="Additional text obtained via vision LLM")

@@ -13,5 +13,17 @@ dependencies = [
     "python-dotenv>=1.1.0",
     "python-multipart>=0.0.20",
     "requests>=2.32.3",
+    "trio>=0.29.0",
     "uvicorn>=0.34.0",
 ]
+
+[tool.ruff.lint.isort]
+known-first-party = ["app"]
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q"
+testpaths = [
+    "tests",
+]
+python_files = "test_*.py"

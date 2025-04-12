@@ -34,23 +34,6 @@ app.include_router(guidelines.router)
 app.include_router(ingestion.router)
 app.include_router(system.router)
 
-# Health check endpoint
-@app.get("/health", tags=["System"], description="Health check endpoint")
-async def health_check():
-    """
-    Simple health check endpoint to verify API is running.
-
-    Returns:
-        dict: Status information
-    """
-    from datetime import datetime
-    return {
-        "status": "healthy",
-        "timestamp": datetime.utcnow().isoformat(),
-        "version": "1.0.0",
-        "features": ["AI-powered alerts", "WhatsApp integration", "Clinical guideline interpretation"]
-    }
-
 # Main entry point
 if __name__ == "__main__":
     import uvicorn

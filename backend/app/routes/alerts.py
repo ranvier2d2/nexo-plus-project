@@ -3,6 +3,7 @@ from typing import List, Dict, Optional
 from datetime import datetime
 import requests
 import os
+from zoneinfo import ZoneInfo
 
 from app.models import Patient, Alert
 from app.routes.patients import patients_db
@@ -125,10 +126,12 @@ async def get_alerts(patient_id: str):
     
     alerts = check_alerts(patient)
     
-    if any(a.nivel == "red" for a in alerts):
+    if any(a.nivel == "red" for a in alerts) and patient.telefono:
         await notify_via_whatsapp(patient, alerts)
+        # Update intervention history *after* successful notification attempt
         patient.intervention_history.append({
-            "timestamp": datetime.utcnow().isoformat(),
+            # Use timezone-aware UTC timestamp
+            "timestamp": datetime.now(ZoneInfo("UTC")).isoformat(),
             "action": "AI-generated WhatsApp notification sent",
             "alerts": "; ".join([a.mensaje for a in alerts])
         })
