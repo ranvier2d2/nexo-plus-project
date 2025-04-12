@@ -14,13 +14,18 @@ router = APIRouter(prefix="/patients/{patient_id}/alerts", tags=["Alerts"])
 
 def check_alerts(patient: Patient) -> List[Alert]:
     """
-    Evaluates patient measurements to generate alerts based on clinical parameters.
-
+    Generates alerts based on a patient's clinical measurements.
+    
+    Evaluates the patient's latest measurement by comparing it to previous values for weight,
+    systolic blood pressure, and heart rate, and checks for critical symptoms such as chest pain
+    or shortness of breath. Returns a list of alerts indicating potential clinical concerns. If
+    no measurements are available, an empty list is returned.
+    
     Args:
-        patient: Patient object with measurements
-
+        patient: Patient object containing clinical measurements.
+    
     Returns:
-        List[Alert]: List of Alert objects
+        List[Alert]: A list of alerts representing deviations from predefined clinical parameters.
     """
     alerts = []
     if not patient.measurements:
