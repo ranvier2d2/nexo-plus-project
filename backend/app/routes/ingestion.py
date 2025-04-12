@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, Query, Depends
 from typing import List, Dict, Optional
 from datetime import datetime
+import uuid
 
 from app.models import TextIngestion, VisionIngestion
 
@@ -21,6 +22,11 @@ async def ingest_text(text_data: TextIngestion):
     Returns:
         TextIngestion: Ingested text data
     """
+    # Ensure ID and timestamp are generated if not provided
+    if not text_data.id:
+        text_data.id = str(uuid.uuid4())
+    if not text_data.timestamp:
+           text_data.timestamp = datetime.utcnow()
     ingested_text_data.append(text_data)
     return text_data
 
@@ -35,6 +41,11 @@ async def ingest_vision(vision_data: VisionIngestion):
     Returns:
         VisionIngestion: Ingested visual data
     """
+    # Ensure ID and timestamp are generated if not provided
+    if not vision_data.id:
+        vision_data.id = str(uuid.uuid4())
+    if not vision_data.timestamp:
+           vision_data.timestamp = datetime.utcnow()
     ingested_vision_data.append(vision_data)
     return vision_data
 

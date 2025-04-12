@@ -24,7 +24,7 @@ app.add_middleware(
 )
 
 # Import and include routers
-from app.routes import patients, measurements, alerts, guidelines, ingestion
+from app.routes import patients, measurements, alerts, guidelines, ingestion, system
 
 # Include routers
 app.include_router(patients.router)
@@ -32,6 +32,7 @@ app.include_router(measurements.router)
 app.include_router(alerts.router)
 app.include_router(guidelines.router)
 app.include_router(ingestion.router)
+app.include_router(system.router)
 
 # Health check endpoint
 @app.get("/health", tags=["System"], description="Health check endpoint")

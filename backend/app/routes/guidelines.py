@@ -2,9 +2,10 @@ from fastapi import APIRouter, HTTPException, Query, Depends
 from typing import List, Dict, Optional
 from datetime import datetime
 
-from app.models import Patient
+from app.models import Patient, GuidelineParameters, GuidelineParameterUpdate 
 from app.routes.patients import patients_db
 from app.services.ai_service import ai_service
+from app.services.clinical_parameters import clinical_params
 
 router = APIRouter(tags=["Guidelines"])
 
@@ -67,6 +68,8 @@ def generate_followup_schedule(patient_id: str) -> Dict[str, str]:
     
     return {"followup_schedule": schedule}
 
+parameters_audit_log: List[Dict[str, str]] = []
+
 @router.get("/guidelines/clinical", response_model=Dict[str, str], 
          description="Get clinical guidelines according to the indicated source (AHA or GES)")
 async def get_clinical_guidelines(source: str = Query(..., description="Guidelines source (AHA or GES)")):
@@ -123,35 +126,57 @@ async def get_followup_plan(patient_id: str):
     """
     return generate_followup_schedule(patient_id)
 
-@router.get("/parameters", response_model=Dict[str, float], 
+@router.get("/parameters", response_model=GuidelineParameters, 
          description="Get current clinical parameters used for alert generation")
 async def get_parameters():
     """
     Returns the current clinical parameters used for alert generation.
 
     Returns:
-        Dict[str, float]: Current clinical parameters
+        GuidelineParameters: Current clinical parameters
     """
-    from app.services.clinical_parameters import clinical_params
-    return clinical_params.dict()
+    return clinical_params
 
-@router.put("/parameters", response_model=Dict[str, float], 
+@router.put("/parameters", response_model=GuidelineParameters, 
          description="Update clinical parameters used for alert generation")
-async def update_parameters(params_update: Dict[str, float]):
+async def update_parameters(params_update: GuidelineParameterUpdate):
     """
     Updates clinical parameters and logs the change.
 
     Args:
-        params_update: Parameter update data
+        params_update: Parameter update data using GuidelineParameterUpdate model
 
     Returns:
-        Dict[str, float]: Updated clinical parameters
+        GuidelineParameters: Updated clinical parameters
     """
-    from app.services.clinical_parameters import clinical_params
+    audit_entry = {
+        "timestamp": datetime.utcnow().isoformat(),
+        "updated_by": params_update.updated_by,
+        "previous_values": clinical_params.dict(),
+        "new_values": {}
+    }
     
-    # Update only the provided parameters
-    for key, value in params_update.items():
-        if hasattr(clinical_params, key) and value is not None:
+    update_dict = params_update.dict(exclude_unset=True, exclude={"updated_by"})
+    
+    for key, value in update_dict.items():
+        if hasattr(clinical_params, key) and value is not None: 
             setattr(clinical_params, key, value)
+            audit_entry["new_values"][key] = value
+        else:
+            print(f"Warning: Attempted to update non-existent parameter '{key}'") 
+
+    if audit_entry["new_values"]:
+        parameters_audit_log.append(audit_entry)
     
-    return clinical_params.dict()
+    return clinical_params
+
+@router.get("/parameters/audit", response_model=List[Dict[str, str]], 
+         description="Get audit log of parameter updates")
+async def get_parameters_audit():
+    """
+    Returns the audit log of clinical parameter updates.
+
+    Returns:
+        List[Dict[str, str]]: List of audit log entries
+    """
+    return parameters_audit_log
