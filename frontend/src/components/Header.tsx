@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Heart } from 'lucide-react';
@@ -20,6 +19,7 @@ const Header = () => {
   return (
     <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b">
       <div className="container py-4 flex items-center justify-between">
+        {/* Main Brand Link */}
         <Link to="/" className="flex items-center gap-2">
           <Heart className="h-6 w-6 text-primary" />
           <span className="font-bold text-xl">Nexo+</span>

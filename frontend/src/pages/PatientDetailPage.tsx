@@ -44,8 +44,8 @@ const PatientDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
-  const [patient, setPatient] = useState(mockPatient);
-  const [recommendations, setRecommendations] = useState(mockRecommendations);
+  const [patient] = useState(mockPatient);
+  const [recommendations] = useState(mockRecommendations);
 
   useEffect(() => {
     // Simulate API loading
@@ -80,6 +80,14 @@ const PatientDetailPage: React.FC = () => {
     return (
       <div className="flex items-center justify-center h-[60vh]">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (!patient) {
+    return (
+      <div className="text-center py-8 text-gray-500">
+        No se encontró información del paciente.
       </div>
     );
   }
