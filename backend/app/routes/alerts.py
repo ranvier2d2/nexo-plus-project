@@ -30,11 +30,13 @@ def check_alerts(patient: Patient) -> List[Alert]:
     
     # Weight change comparison
     if len(patient.measurements) > 1:
-        peso_inicial = patient.measurements[0].peso
-        delta_peso = latest.peso - peso_inicial
+        # Use the previous measurement as baseline for weight change
+        previous = patient.measurements[-2] 
+        delta_peso = latest.peso - previous.peso
+        # Alert if weight gain exceeds threshold compared to *previous* measurement
         if delta_peso > clinical_params.peso_delta:
             alerts.append(Alert(
-                mensaje=f"Weight increase of {delta_peso:.1f} kg detected. Check for fluid retention.",
+                mensaje=f"Recent weight increase of {delta_peso:.1f} kg detected (compared to last measurement). Check for fluid retention.",
                 nivel="yellow"
             ))
     

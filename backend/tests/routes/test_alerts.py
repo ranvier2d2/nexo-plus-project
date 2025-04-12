@@ -94,7 +94,7 @@ async def test_get_alerts_yellow_alert_generated(mock_notify: AsyncMock, mock_db
     alerts_data = response.json()
     assert len(alerts_data) == 1
     expected_alert = Alert(
-        mensaje=f"Weight increase of {delta_peso:.1f} kg detected. Check for fluid retention.",
+        mensaje=f"Recent weight increase of {delta_peso:.1f} kg detected (compared to last measurement). Check for fluid retention.",
         nivel="yellow"
     ).model_dump() # Use model_dump() for comparison if Alert model is used
     # Compare relevant fields, ignore timestamp if it's auto-generated in Alert model
