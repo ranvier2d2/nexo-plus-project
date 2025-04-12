@@ -15,12 +15,38 @@ This directory contains the FastAPI backend application for the Nexo+ platform.
     - `ai_service.py`: Handles interaction with the LiteLLM service for AI features.
     - `clinical_parameters.py`: Defines clinical thresholds and parameters.
     - `whatsapp_service.py`: (Placeholder/Implicit) Handles sending notifications via WhatsApp.
-- `tests/`: Contains automated tests for the backend.
-  - `routes/`: Tests for specific API routes.
-  - `conftest.py`: Pytest configuration and fixtures.
-- `.env.example`: Example environment variable file.
-- `pyproject.toml`: Project metadata and dependencies (managed by `uv`).
-- `README.md`: This file.
+
+## Service Structure
+
+```
+backend/
+├── app/                # Core application source code
+│   ├── __init__.py
+│   ├── main.py         # FastAPI app instance
+│   ├── models.py       # Pydantic models
+│   ├── routes/         # API route definitions
+│   │   ├── __init__.py
+│   │   └── alerts.py
+│   └── services/       # Business logic services
+│       ├── __init__.py
+│       ├── ai_service.py
+│       └── clinical_parameters.py
+├── tests/              # Pytest tests
+│   ├── __init__.py
+│   ├── conftest.py     # Test fixtures
+│   └── routes/
+│       ├── __init__.py
+│       └── test_alerts.py
+├── .env.example        # Example environment variables
+├── .gitignore
+├── pyproject.toml      # Project config and dependencies (uv)
+└── README.md           # This file
+```
+
+#### Key Logic Locations
+
+- **Alert Condition Checking**: The rules for determining *if* an alert should be generated based on measurements (e.g., comparing BP/HR/Weight to thresholds) are primarily located in the `check_alerts` function within `app/routes/alerts.py`.
+- **AI Alert Message Generation**: The logic for using an LLM to create a personalized, patient-friendly WhatsApp message *after* an alert condition is met resides in the `generate_alert_message` method within `app/services/ai_service.py`.
 
 ## Setup
 
@@ -68,3 +94,11 @@ uv run pytest
 To run specific tests or with more verbosity:
 ```bash
 uv run pytest tests/routes/test_alerts.py -v
+```
+
+- `tests/`: Contains automated tests for the backend.
+  - `routes/`: Tests for specific API routes.
+  - `conftest.py`: Pytest configuration and fixtures.
+- `.env.example`: Example environment variable file.
+- `pyproject.toml`: Project metadata and dependencies (managed by `uv`).
+- `README.md`: This file.
