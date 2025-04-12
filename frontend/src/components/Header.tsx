@@ -1,55 +1,67 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { Button } from './ui/button';
-import { useToast } from './ui/use-toast';
 
-const Header: React.FC = () => {
-  const { toast } = useToast();
-  
+import React, { useState } from 'react';
+import { Button } from "@/components/ui/button";
+import { Heart } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
+
+const Header = () => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const location = useLocation();
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
+
+  // Close menu when route changes
+  React.useEffect(() => {
+    setIsMenuOpen(false);
+  }, [location.pathname]);
+
   return (
-    <header className="bg-white shadow-sm">
-      <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-        <div className="flex items-center">
-          <Link to="/" className="flex items-center">
-            <span className="text-2xl font-bold text-primary">Nexo+</span>
-          </Link>
-        </div>
-        
-        <nav className="hidden md:flex space-x-6">
-          <Link to="/" className="text-gray-700 hover:text-primary transition-colors">
-            Dashboard
-          </Link>
-          <Link to="/pacientes" className="text-gray-700 hover:text-primary transition-colors">
-            Pacientes
-          </Link>
-          <Link to="/mediciones" className="text-gray-700 hover:text-primary transition-colors">
-            Mediciones
-          </Link>
-          <Link to="/guias" className="text-gray-700 hover:text-primary transition-colors">
-            Guías Clínicas
-          </Link>
+    <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b">
+      <div className="container py-4 flex items-center justify-between">
+        <Link to="/" className="flex items-center gap-2">
+          <Heart className="h-6 w-6 text-primary" />
+          <span className="font-bold text-xl">Nexo+</span>
+        </Link>
+
+        {/* Mobile menu button */}
+        <button 
+          className="md:hidden flex flex-col gap-1.5"
+          onClick={toggleMenu}
+          aria-label={isMenuOpen ? "Cerrar menú" : "Abrir menú"}
+        >
+          <span className={`h-0.5 w-6 bg-foreground transition-transform ${isMenuOpen ? 'rotate-45 translate-y-2' : ''}`}></span>
+          <span className={`h-0.5 w-6 bg-foreground transition-opacity ${isMenuOpen ? 'opacity-0' : ''}`}></span>
+          <span className={`h-0.5 w-6 bg-foreground transition-transform ${isMenuOpen ? '-rotate-45 -translate-y-2' : ''}`}></span>
+        </button>
+
+        {/* Desktop navigation */}
+        <nav className="hidden md:flex gap-6 items-center">
+          <Link to="/dashboard" className="text-foreground hover:text-primary transition-colors">Dashboard</Link>
+          <Link to="/pacientes" className="text-foreground hover:text-primary transition-colors">Pacientes</Link>
+          <Link to="/mediciones" className="text-foreground hover:text-primary transition-colors">Mediciones</Link>
+          <Link to="/guias" className="text-foreground hover:text-primary transition-colors">Guías Clínicas</Link>
+          <Link to="/contacto" className="text-foreground hover:text-primary transition-colors">Contacto</Link>
+          <Button variant="outline" asChild><Link to="/login">Iniciar sesión</Link></Button>
+          <Button asChild><Link to="/registro">Registrarse</Link></Button>
         </nav>
-        
-        <div className="flex items-center space-x-4">
-          <Button 
-            variant="outline"
-            onClick={() => {
-              toast({
-                title: "Notificaciones",
-                description: "No tienes notificaciones nuevas",
-              });
-            }}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
-            </svg>
-          </Button>
-          
-          <Link to="/login">
-            <Button>Iniciar Sesión</Button>
-          </Link>
-        </div>
       </div>
+
+      {/* Mobile navigation */}
+      {isMenuOpen && (
+        <div className="md:hidden py-4 bg-background border-t border-b">
+          <nav className="container flex flex-col gap-4">
+            <Link to="/dashboard" className="py-2 text-foreground hover:text-primary transition-colors" onClick={toggleMenu}>Dashboard</Link>
+            <Link to="/pacientes" className="py-2 text-foreground hover:text-primary transition-colors" onClick={toggleMenu}>Pacientes</Link>
+            <Link to="/mediciones" className="py-2 text-foreground hover:text-primary transition-colors" onClick={toggleMenu}>Mediciones</Link>
+            <Link to="/guias" className="py-2 text-foreground hover:text-primary transition-colors" onClick={toggleMenu}>Guías Clínicas</Link>
+            <Link to="/contacto" className="py-2 text-foreground hover:text-primary transition-colors" onClick={toggleMenu}>Contacto</Link>
+            <Button variant="outline" className="w-full" asChild><Link to="/login">Iniciar sesión</Link></Button>
+            <Button className="w-full" asChild><Link to="/registro">Registrarse</Link></Button>
+          </nav>
+        </div>
+      )}
     </header>
   );
 };
