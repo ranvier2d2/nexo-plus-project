@@ -8,6 +8,28 @@ import { Textarea } from '../components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Checkbox } from '../components/ui/checkbox';
 import { Label } from '../components/ui/label';
+import { Alert, AlertDescription, AlertTitle } from '../components/ui/alert';
+import { BookOpen, Heart, Brain, Clipboard, FileText, CheckCircle, Loader2 } from 'lucide-react';
+
+// Helper function to parse guideline points
+const parseGuidelines = (text: string) => {
+  const lines = text.trim().split('\n');
+  const title = lines[0];
+  const points = lines.slice(1).map(line => line.trim().substring(2).trim()); // Remove '• '
+  return { title, points };
+};
+
+// Map keywords to icons
+const getIconForGuideline = (point: string) => {
+  const lowerPoint = point.toLowerCase();
+  if (lowerPoint.includes('bp') || lowerPoint.includes('presión') || lowerPoint.includes('beta-blockers') || lowerPoint.includes('hr') || lowerPoint.includes('ecocardiograma') || lowerPoint.includes('echocardiogram') || lowerPoint.includes('rehabilitación') || lowerPoint.includes('cardiac rehabilitation') || lowerPoint.includes('prueba de esfuerzo') || lowerPoint.includes('stress test') || lowerPoint.includes('alert system')) return <Heart className="h-4 w-4 flex-shrink-0 mt-0.5" />;
+  if (lowerPoint.includes('ldl') || lowerPoint.includes('hba1c') || lowerPoint.includes('antiplatelet') || lowerPoint.includes('antiplaquetaria') || lowerPoint.includes('ace inhibitors') || lowerPoint.includes('arbs') || lowerPoint.includes('statins') || lowerPoint.includes('medicamentos') || lowerPoint.includes('medications') || lowerPoint.includes('nutritional counseling') || lowerPoint.includes('dieta')) return <FileText className="h-4 w-4 flex-shrink-0 mt-0.5" />;
+  if (lowerPoint.includes('seguimiento') || lowerPoint.includes('follow-up') || lowerPoint.includes('control') || lowerPoint.includes('monitoring') || lowerPoint.includes('monitoreo')) return <Clipboard className="h-4 w-4 flex-shrink-0 mt-0.5" />;
+  if (lowerPoint.includes('depression') || lowerPoint.includes('depresión') || lowerPoint.includes('psychological support') || lowerPoint.includes('apoyo psicológico') || lowerPoint.includes('education') || lowerPoint.includes('educación') || lowerPoint.includes('smoking cessation') || lowerPoint.includes('cesación tabáquica')) return <Brain className="h-4 w-4 flex-shrink-0 mt-0.5" />;
+  if (lowerPoint.includes('adherence') || lowerPoint.includes('adherencia') || lowerPoint.includes('activity') || lowerPoint.includes('actividad') || lowerPoint.includes('guaranteed access')) return <CheckCircle className="h-4 w-4 flex-shrink-0 mt-0.5" />;
+  return <CheckCircle className="h-4 w-4 flex-shrink-0 mt-0.5" />; // Default icon
+};
+
 
 const GuiasPage: React.FC = () => {
   const { toast } = useToast();
@@ -18,7 +40,7 @@ const GuiasPage: React.FC = () => {
   const [isInterpreting, setIsInterpreting] = useState(false);
 
   // Mock guidelines content
-  const ahaGuidelines = `
+  const ahaGuidelinesText = `
     AHA: Post-AMI Recommendations:
     • BP <130/80 mmHg (minimum <140/90).
     • Beta-blockers: HR 50-70 bpm, prolonged use based on condition.
@@ -35,7 +57,7 @@ const GuiasPage: React.FC = () => {
     • Regular follow-up visits: 2 weeks, 1 month, 3 months, 6 months, and 1 year.
   `;
 
-  const gesGuidelines = `
+  const gesGuidelinesText = `
     GES (Chile): Post-AMI/HF Recommendations:
     • First check-up in 7–14 days; initial monthly check-ups, spaced after stabilization.
     • Early cardiac rehabilitation (minimum 15 sessions in 2 months).
@@ -50,6 +72,9 @@ const GuiasPage: React.FC = () => {
     • Regular monitoring of blood pressure, heart rate, and weight.
     • Alert system for early detection of decompensation signs.
   `;
+
+  const ahaGuidelines = parseGuidelines(ahaGuidelinesText);
+  const gesGuidelines = parseGuidelines(gesGuidelinesText);
 
   useEffect(() => {
     // Simulate API loading
@@ -71,12 +96,12 @@ const GuiasPage: React.FC = () => {
     }
 
     setIsInterpreting(true);
+    setInterpretation(''); // Clear previous interpretation
 
     // Simulate API call to interpret guidelines
     setTimeout(() => {
-      // Mock AI-generated interpretation
+      // Mock AI-generated interpretation (same logic as before)
       let mockInterpretation = "";
-      
       if (source === 'aha') {
         if (query.toLowerCase().includes('presión') || query.toLowerCase().includes('presion')) {
           mockInterpretation = "Según las guías de la AHA, la presión arterial objetivo para pacientes post-infarto debe ser <130/80 mmHg, con un mínimo aceptable de <140/90 mmHg. Se recomienda monitoreo regular y ajuste de medicación antihipertensiva según sea necesario para mantener estos valores.";
@@ -94,10 +119,9 @@ const GuiasPage: React.FC = () => {
           mockInterpretation = "Las guías GES de Chile para pacientes post-infarto establecen un primer control en 7-14 días, seguido de controles mensuales iniciales que se espacian tras la estabilización. Se enfatiza la adherencia terapéutica, dieta adecuada, actividad física moderada y educación en autocuidado. El programa garantiza acceso a medicamentos y exámenes como ecocardiograma en el primer mes y prueba de esfuerzo antes de los 3 meses si está indicada.";
         }
       }
-
       setInterpretation(mockInterpretation);
       setIsInterpreting(false);
-    }, 2000);
+    }, 1500); // Slightly shorter delay
   };
 
   if (loading) {
@@ -109,108 +133,141 @@ const GuiasPage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 container py-8 md:py-12">
       <div>
-        <h1 className="text-3xl font-bold mb-2">Guías Clínicas</h1>
-        <p className="text-gray-600">Consulta e interpretación de guías clínicas para el manejo post-infarto</p>
+        <h1 className="text-3xl md:text-4xl font-bold mb-3">Guías Clínicas</h1>
+        <p className="text-muted-foreground text-lg">
+          Consulta e interpretación de guías clínicas para el manejo post-infarto.
+        </p>
       </div>
 
-      <Tabs defaultValue="guidelines">
-        <TabsList className="grid w-full grid-cols-1 md:grid-cols-3">
-          <TabsTrigger value="guidelines">Guías Clínicas</TabsTrigger>
-          <TabsTrigger value="interpreter">Intérprete IA</TabsTrigger>
-          <TabsTrigger value="followup">Planes de Seguimiento</TabsTrigger>
+      <Tabs defaultValue="guidelines" className="w-full">
+        <TabsList className="mb-6 grid w-full grid-cols-1 sm:grid-cols-3 gap-1 rounded-lg bg-muted p-1 h-auto">
+          <TabsTrigger value="guidelines" className="rounded-md py-2.5 text-sm sm:text-base">
+            Guías Clínicas
+          </TabsTrigger>
+          <TabsTrigger value="interpreter" className="rounded-md py-2.5 text-sm sm:text-base">
+            Intérprete IA
+          </TabsTrigger>
+          <TabsTrigger value="followup" className="rounded-md py-2.5 text-sm sm:text-base">
+            Planes de Seguimiento
+          </TabsTrigger>
         </TabsList>
         
         {/* Guidelines Tab */}
-        <TabsContent value="guidelines" className="mt-6">
+        <TabsContent value="guidelines" className="mt-0">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Guías AHA</CardTitle>
-                <CardDescription>
-                  American Heart Association - Recomendaciones post-infarto agudo al miocardio
-                </CardDescription>
+            {/* AHA Card */}
+            <Card className="rounded-xl shadow-lg overflow-hidden border border-primary/20">
+              <CardHeader className="bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-5 pb-4">
+                <div className="flex items-center gap-3 mb-1">
+                  <div className="bg-primary/10 p-2 rounded-full border border-primary/20">
+                     <BookOpen className="h-5 w-5 text-primary" />
+                  </div>
+                  <CardTitle className="text-xl text-primary">Guías AHA</CardTitle>
+                </div>
+                <CardDescription className="text-primary/90">American Heart Association - Recomendaciones post-infarto</CardDescription>
               </CardHeader>
-              <CardContent>
-                <pre className="whitespace-pre-wrap text-sm bg-gray-50 p-4 rounded-md">
-                  {ahaGuidelines}
-                </pre>
+              <CardContent className="p-5 pt-4">
+                <div className="space-y-4">
+                  {ahaGuidelines.points.map((point, index) => (
+                    <div key={`aha-item-${index}`} className="flex items-start gap-3 w-full text-sm">
+                      <span className="text-primary flex-shrink-0 mt-0.5">{getIconForGuideline(point)}</span>
+                      <span className="flex-grow text-muted-foreground text-left leading-snug">{point}</span>
+                    </div>
+                  ))}
+                </div>
               </CardContent>
             </Card>
             
-            <Card>
-              <CardHeader>
-                <CardTitle>Guías GES Chile</CardTitle>
-                <CardDescription>
-                  Garantías Explícitas en Salud - Recomendaciones post-infarto/insuficiencia cardíaca
-                </CardDescription>
+            {/* GES Card */}
+            <Card className="rounded-xl shadow-lg overflow-hidden border border-accent/20">
+              <CardHeader className="bg-gradient-to-br from-accent/10 via-accent/5 to-transparent p-5 pb-4">
+                 <div className="flex items-center gap-3 mb-1">
+                  <div className="bg-accent/10 p-2 rounded-full border border-accent/20">
+                     <BookOpen className="h-5 w-5 text-accent" />
+                  </div>
+                  <CardTitle className="text-xl text-accent">Guías GES Chile</CardTitle>
+                </div>
+                <CardDescription className="text-accent/90">Garantías Explícitas en Salud - Recomendaciones post-infarto/IC</CardDescription>
               </CardHeader>
-              <CardContent>
-                <pre className="whitespace-pre-wrap text-sm bg-gray-50 p-4 rounded-md">
-                  {gesGuidelines}
-                </pre>
+              <CardContent className="p-5 pt-4">
+                 <div className="space-y-4">
+                  {gesGuidelines.points.map((point, index) => (
+                    <div key={`ges-item-${index}`} className="flex items-start gap-3 w-full text-sm">
+                       <span className="text-accent flex-shrink-0 mt-0.5">{getIconForGuideline(point)}</span>
+                       <span className="flex-grow text-muted-foreground text-left leading-snug">{point}</span>
+                     </div>
+                  ))}
+                </div>
               </CardContent>
             </Card>
           </div>
         </TabsContent>
         
         {/* AI Interpreter Tab */}
-        <TabsContent value="interpreter" className="mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Intérprete de Guías Clínicas con IA</CardTitle>
+        <TabsContent value="interpreter" className="mt-0">
+          <Card className="rounded-xl shadow-lg overflow-hidden border border-border/30">
+            <CardHeader className="p-5 bg-muted/50">
+              <CardTitle className="text-xl">Intérprete de Guías Clínicas con IA</CardTitle>
               <CardDescription>
                 Consulta específica sobre las guías clínicas utilizando inteligencia artificial
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-5 pt-4">
               <div className="space-y-6">
-                <div className="space-y-2">
-                  <Label htmlFor="source">Fuente de guías clínicas</Label>
-                  <Select value={source} onValueChange={setSource}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Seleccionar fuente" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="aha">American Heart Association (AHA)</SelectItem>
-                      <SelectItem value="ges">Garantías Explícitas en Salud (GES Chile)</SelectItem>
-                    </SelectContent>
-                  </Select>
+                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                  <div className="md:col-span-2 space-y-2">
+                    <Label htmlFor="query">Tu consulta</Label>
+                    <Textarea 
+                      id="query" 
+                      placeholder="Ej: ¿Cuál es la presión arterial objetivo según estas guías?" 
+                      value={query}
+                      onChange={(e) => setQuery(e.target.value)}
+                      rows={3}
+                      className="border-border/50 focus:border-primary focus:ring-primary"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="source">Fuente de guías</Label>
+                    <Select value={source} onValueChange={setSource}>
+                      <SelectTrigger className="border-border/50 focus:ring-primary focus:border-primary">
+                        <SelectValue placeholder="Seleccionar fuente" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="aha">Guías AHA</SelectItem>
+                        <SelectItem value="ges">Guías GES Chile</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
                 
-                <div className="space-y-2">
-                  <Label htmlFor="query">Tu consulta</Label>
-                  <Textarea 
-                    id="query" 
-                    placeholder="Ej: ¿Cuál es la presión arterial objetivo según estas guías?" 
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    rows={3}
-                  />
+                <div className="flex justify-end">
+                  <Button 
+                    onClick={handleInterpretGuidelines} 
+                    disabled={isInterpreting}
+                    className="min-w-[150px]"
+                  >
+                    {isInterpreting ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Interpretando...
+                      </>
+                    ) : (
+                      'Interpretar con IA'
+                    )}
+                  </Button>
                 </div>
-                
-                <Button 
-                  onClick={handleInterpretGuidelines} 
-                  disabled={isInterpreting}
-                  className="w-full"
-                >
-                  {isInterpreting ? (
-                    <>
-                      <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
-                      Interpretando...
-                    </>
-                  ) : (
-                    'Interpretar con IA'
-                  )}
-                </Button>
                 
                 {interpretation && (
                   <div className="mt-6">
-                    <h3 className="text-lg font-semibold mb-2">Interpretación</h3>
-                    <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
-                      <p className="text-gray-800">{interpretation}</p>
-                    </div>
+                    <Alert className="bg-gradient-to-tr from-blue-50 via-blue-100/50 to-blue-50 dark:from-blue-950/30 dark:via-blue-950/10 dark:to-blue-950/30 border-blue-200 dark:border-blue-800/50">
+                      <Brain className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                      <AlertTitle className="text-blue-800 dark:text-blue-300">Interpretación IA</AlertTitle>
+                      <AlertDescription className="mt-1 text-blue-700 dark:text-blue-400/90">
+                        {interpretation}
+                      </AlertDescription>
+                    </Alert>
                   </div>
                 )}
               </div>
@@ -219,26 +276,28 @@ const GuiasPage: React.FC = () => {
         </TabsContent>
         
         {/* Follow-up Plans Tab */}
-        <TabsContent value="followup" className="mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Planes de Seguimiento Personalizados</CardTitle>
+        <TabsContent value="followup" className="mt-0">
+          <Card className="rounded-xl shadow-lg overflow-hidden border border-green-500/20">
+            <CardHeader className="bg-gradient-to-br from-green-500/10 via-green-500/5 to-transparent p-5">
+              <CardTitle className="text-xl">Planes de Seguimiento Personalizados</CardTitle>
               <CardDescription>
-                Generación de planes de seguimiento basados en el perfil del paciente
+                Genera planes de seguimiento basados en el perfil del paciente y las guías clínicas
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-5 pt-4">
               <div className="space-y-6">
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Input Section */}
+                <div className="p-5 rounded-lg border border-border/30 bg-background shadow-inner">
+                  <h3 className="text-lg font-semibold mb-4 text-foreground">Información del Paciente</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div className="space-y-2">
-                      <Label htmlFor="patient-id">ID del Paciente</Label>
-                      <Input id="patient-id" placeholder="Ingrese ID del paciente" />
+                      <Label htmlFor="patient-id" className="font-medium">ID del Paciente</Label>
+                      <Input id="patient-id" placeholder="Ej: 12345678-9" className="border-border/50 focus:border-primary"/>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="risk-level">Nivel de Riesgo</Label>
+                      <Label htmlFor="risk-level" className="font-medium">Nivel de Riesgo</Label>
                       <Select defaultValue="medium">
-                        <SelectTrigger>
+                        <SelectTrigger className="border-border/50 focus:ring-primary">
                           <SelectValue placeholder="Seleccionar nivel de riesgo" />
                         </SelectTrigger>
                         <SelectContent>
@@ -250,52 +309,43 @@ const GuiasPage: React.FC = () => {
                     </div>
                   </div>
                   
-                  <div className="space-y-2">
-                    <Label>Factores de Riesgo</Label>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      <div className="flex items-center space-x-2">
-                        <Checkbox id="hipertension" />
-                        <label htmlFor="hipertension" className="text-sm">Hipertensión</label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox id="diabetes" />
-                        <label htmlFor="diabetes" className="text-sm">Diabetes</label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox id="dislipidemia" />
-                        <label htmlFor="dislipidemia" className="text-sm">Dislipidemia</label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox id="tabaquismo" />
-                        <label htmlFor="tabaquismo" className="text-sm">Tabaquismo</label>
-                      </div>
+                  <div className="space-y-2 mb-6">
+                    <Label className="font-medium">Factores de Riesgo Presentes</Label>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-2">
+                      {[ "Hipertensión", "Diabetes", "Dislipidemia", "Tabaquismo", "Obesidad", "Sedentarismo", "Antecedentes Familiares", "Estrés Crónico" ].map(factor => (
+                        <div key={factor} className="flex items-center space-x-2">
+                          <Checkbox id={factor.toLowerCase().replace(' ', '-')} />
+                          <label htmlFor={factor.toLowerCase().replace(' ', '-')} className="text-sm font-normal text-muted-foreground cursor-pointer">
+                            {factor}
+                          </label>
+                        </div>
+                      ))}
                     </div>
                   </div>
                   
-                  <Button className="w-full">
-                    Generar Plan de Seguimiento
+                  <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
+                    Generar Plan de Seguimiento Recomendado
                   </Button>
                 </div>
                 
-                <div className="border-t pt-6">
+                {/* Recommended Plan Section */}
+                <div className="border-t border-border/30 pt-6">
                   <h3 className="text-lg font-semibold mb-4">Plan de Seguimiento Recomendado</h3>
-                  <div className="space-y-4">
-                    <div>
-                      <h4 className="font-medium">Controles Médicos</h4>
-                      <p className="text-gray-700">Primer control en 7-14 días; luego controles mensuales durante 3 meses y cada 3-6 meses según estabilidad.</p>
-                    </div>
-                    <div>
-                      <h4 className="font-medium">Rehabilitación Cardíaca</h4>
-                      <p className="text-gray-700">Programa de rehabilitación cardíaca de 15 sesiones en 2 meses, con evaluación de progreso al finalizar.</p>
-                    </div>
-                    <div>
-                      <h4 className="font-medium">Monitoreo</h4>
-                      <p className="text-gray-700">Medición diaria de presión arterial, peso 3 veces por semana, registro de síntomas en la aplicación Nexo+.</p>
-                    </div>
-                    <div>
-                      <h4 className="font-medium">Exámenes</h4>
-                      <p className="text-gray-700">Ecocardiograma en 4 semanas, perfil lipídico en 6 semanas, prueba de esfuerzo en 10 semanas si está indicada.</p>
-                    </div>
+                  <div className="space-y-4 bg-gradient-to-br from-green-500/5 via-transparent to-green-500/5 p-5 rounded-lg border border-green-500/30 shadow-sm">
+                    {[
+                      { icon: Clipboard, title: "Controles Médicos", text: "Primer control en 7-14 días; luego controles mensuales durante 3 meses y cada 3-6 meses según estabilidad." },
+                      { icon: Heart, title: "Rehabilitación Cardíaca", text: "Programa de rehabilitación cardíaca de 15 sesiones en 2 meses, con evaluación de progreso al finalizar." },
+                      { icon: Heart, title: "Monitoreo en Hogar", text: "Medición diaria de presión arterial, peso 3 veces por semana, registro de síntomas en la aplicación Nexo+." },
+                      { icon: FileText, title: "Exámenes Complementarios", text: "Ecocardiograma en 4 semanas, perfil lipídico en 6 semanas, prueba de esfuerzo en 10 semanas si está indicada." }
+                    ].map((item, index) => (
+                      <div key={index}>
+                        <h4 className="font-medium flex items-center gap-2 text-green-700 dark:text-green-400 mb-1">
+                          <item.icon className="h-4 w-4" />
+                          {item.title}
+                        </h4>
+                        <p className="text-muted-foreground text-sm ml-6">{item.text}</p>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
