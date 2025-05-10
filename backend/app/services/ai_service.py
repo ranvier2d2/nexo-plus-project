@@ -25,14 +25,16 @@ class AIService:
     
     async def generate_alert_message(self, patient: Patient, alerts: List[Alert]) -> str:
         """
-        Generate a personalized alert message for the patient based on their data and alerts.
+        Generate a personalized alert message based on patient data and alerts.
+        
+        This function constructs a prompt that includes the patient's name, age, and, if available, the latest measurement details (such as blood pressure, heart rate, weight, oxygen saturation, and reported symptoms). It also lists detected alerts with their respective severity levels and instructs an AI model to generate a concise, empathetic WhatsApp message in Spanish. If the patient lacks recent measurements, a default message is used. Should the AI generation process fail, a fallback alert message containing the alert texts is returned.
         
         Args:
-            patient: Patient object
-            alerts: List of Alert objects
+            patient: A Patient object containing personal details and measurements.
+            alerts: A list of Alert objects with associated messages and severity levels.
         
         Returns:
-            str: Personalized alert message
+            str: A personalized alert message intended for WhatsApp communication.
         """
         # Extract relevant patient information
         patient_info = {

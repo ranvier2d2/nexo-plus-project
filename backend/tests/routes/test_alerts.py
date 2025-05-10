@@ -109,7 +109,13 @@ async def test_get_alerts_yellow_alert_generated(mock_notify: AsyncMock, mock_db
 @patch('app.routes.alerts.patients_db') # Mock the database dictionary
 @patch('app.routes.alerts.notify_via_whatsapp', new_callable=AsyncMock) # Mock the WhatsApp notification function
 async def test_get_alerts_red_alert_triggers_notification(mock_notify: AsyncMock, mock_db: patch, client: AsyncClient):
-    """Test GET /patients/{patient_id}/alerts generates a red alert and triggers notification."""
+    """
+    Test GET /patients/{patient_id}/alerts returns a red alert and triggers notification.
+    
+    Creates a patient with high systolic blood pressure to simulate a red alert scenario.
+    Verifies that the endpoint returns the expected red alert message, the notification function
+    is called with the correct parameters, and the patient's intervention history is updated.
+    """
     # 1. Setup: Create patient (with phone number) and measurements triggering a red alert (e.g., high BP).
     test_patient_id = "patient_red"
     high_systolic_bp = 190.0 # Assuming clinical_params.pa_max = 180.0
